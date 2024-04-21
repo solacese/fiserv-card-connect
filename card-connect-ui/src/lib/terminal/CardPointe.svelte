@@ -58,7 +58,9 @@
             });
         });
 
-        client.on("message", (topic, message) => {
+        client.on("message", (topic, message, packet) => {
+            //reply-to
+            const replyTo = packet.properties?.userProperties?.replyTo;
             console.log("Received message from topic: ", topic, " with message: ", message.toString());
         });
 
