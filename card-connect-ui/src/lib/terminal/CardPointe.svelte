@@ -47,21 +47,23 @@
         const client = mqtt.connect(mqttHost, {
             username: mqttUsername,
             password: mqttPassword,
-            clientId: deviceId
+            clientId: deviceId,
+            protocolVersion: 5
         });
 
         client.on("connect", () => {
-           terminalLog(`Connected to Solace Broker ${brokerLabel} over MQTT!`);
+           terminalLog(`Connected to Solace Broker ${brokerLabel} over MQTT with device id ${deviceId}!`);
 
             client.subscribe("terminal/"+deviceId+"/>", err =>{
+                terminalLog(`Subscribed to topic terminal/${deviceId}/>`);
                    if(err) console.log("Error subscribing to topic: ", err);
             });
         });
 
         client.on("message", (topic, message, packet) => {
             //reply-to
-            const replyTo = packet.properties?.userProperties?.replyTo;
-            console.log("Received message from topic: ", topic, " with message: ", message.toString());
+            const responseTopic = packet.properties?.responseTopic;
+            console.log("Response topic: ", responseTopic);
         });
 
       
