@@ -31,11 +31,11 @@
             body: JSON.stringify({
             terminalId: deviceId,
             type: "BEGIN_TRAN",
-            amount: 100.00,
+            amount: "100.00",
             })
         })
         .then(data => {
-            terminalLog("Started Transaction!");
+            terminalLog("Requesting start of transaction...");
         })
         .catch(error => {
             console.log("Error starting transaction: ", error);
@@ -54,8 +54,8 @@
         client.on("connect", () => {
            terminalLog(`Connected to Solace Broker ${brokerLabel} over MQTT with device id ${deviceId}!`);
 
-            client.subscribe("terminal/"+deviceId+"/>", err =>{
-                terminalLog(`Subscribed to topic terminal/${deviceId}/>`);
+            client.subscribe("terminal/"+deviceId, err =>{
+                terminalLog(`Subscribed to topic terminal/${deviceId}`);
                    if(err) console.log("Error subscribing to topic: ", err);
             });
         });
@@ -64,6 +64,41 @@
             //reply-to
             const responseTopic = packet.properties?.responseTopic;
             console.log("Response topic: ", responseTopic);
+            const jsonMsg = JSON.parse(message.toString());
+
+            
+            
+            if ("BEGIN_TRAN" == jsonMsg.cardTransactionType) {
+                // The first message in the flow will be a response to the start transaction
+                // Need to construct a AUTH_CAPTURE message + replyTo header.
+                terminalLog("****** Transaction "+jsonMsg.transactionId+" started. ******");
+
+                var options= {
+                    qos: 1,
+                    properties: {responseTopic: "terminal/"+deviceId}
+                };
+                
+                let msg = JSON.stringify(
+                    {
+                    terminalId: deviceId,
+                    cardTransactionType: "AUTH_CAPTURE",
+                    amount: "100.00",
+                    tipAmount : "25.00",
+                    transactionId : jsonMsg.transactionId
+                    });
+                terminalLog("Publish CC message to backend "+responseTopic+" "+msg);
+                client.publish(responseTopic, msg, options);
+            } else if ("AUTH_CAPTURE" == jsonMsg.cardTransactionType) {
+                if ("000" == jsonMsg.processingStatus) {
+                    terminalLog("Received processing success");
+                    terminalLog(message.toString());
+                    terminalLog("****** End of Transaction ******");
+                } else {
+                    terminalLog("Error in processing CC");
+                }
+            } else {
+                terminalLog("Error: Unknown message from backend");
+            }
         });
 
       
