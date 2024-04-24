@@ -1,7 +1,7 @@
-export const MQTT_HOST = 'ws://mr-connection-qii5syp4cda.messaging.solace.cloud:8000';
-export const MQTT_USERNAME = 'card-point-terminal'
+export const MQTT_HOST = 'wss://mr-connection-v251j35k86e.messaging.solace.cloud:8443';
+export const MQTT_USERNAME = 'cardpointe-terminal'
 export const MQTT_PASSWORD = 'test'
 
-export const REST_URL = 'http://mr-connection-qii5syp4cda.messaging.solace.cloud:9000';
+export const REST_URL = 'https://mr-connection-9ed9qhivdye.messaging.solace.cloud:9443';
 export const REST_USERNAME = 'solace-cloud-client'
-export const REST_PASSWORD = '68mqr23jsi36gevvboum6fdnu4'
+export const REST_PASSWORD = 'qf3v2e5vpgic91si3ke8v5bqff'

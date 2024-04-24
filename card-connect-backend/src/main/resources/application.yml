@@ -9,13 +9,13 @@ spring:
           environment:
             solace:
               java:
-                clientUsername: card-point-backend
-                clientPassword: welcome99
-                host: 'tcps://mr-connection-qii5syp4cda.messaging.solace.cloud:55443'
-                msgVpn: cc-west
+                clientUsername: solace-cloud-client
+                clientPassword: aun9gei5rvmomkk368ollri8fe
+                host: 'tcps://mr-connection-v251j35k86e.messaging.solace.cloud:55443'
+                msgVpn: cardpointe-broker-uscentra
       bindings:
         initializeTransaction-in-0:
-          destination: 'terminal/*/transaction/begin_tran'
+          destination: 'cardpointe/terminal/*/begin_tran'
           group: nonexclusive
         processTransaction-in-0:
           destination: 'process/${process.id}'

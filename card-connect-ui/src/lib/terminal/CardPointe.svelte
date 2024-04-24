@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { json } from "@sveltejs/kit";
     import mqtt from "mqtt";
 	import { onMount } from "svelte";
     import { v4 as uuidv4 } from 'uuid';
@@ -22,7 +23,7 @@
 
 
     const postRESTTransaction = () => {
-        fetch(`${restURL}/terminal/${deviceId}/transaction/begin_tran`, {
+        fetch(`${restURL}/cardpointe/terminal/${deviceId}/begin_tran`, {
             method: "POST",
             headers: {
             "Content-Type": "application/json",
@@ -54,8 +55,8 @@
         client.on("connect", () => {
            terminalLog(`Connected to Solace Broker ${brokerLabel} over MQTT with device id ${deviceId}!`);
 
-            client.subscribe("terminal/"+deviceId, err =>{
-                terminalLog(`Subscribed to topic terminal/${deviceId}`);
+            client.subscribe("cardpointe/terminal/"+deviceId+"/transaction/#", err =>{
+                // terminalLog(`Subscribed to topic terminal/${deviceId}`);
                    if(err) console.log("Error subscribing to topic: ", err);
             });
         });
@@ -63,9 +64,8 @@
         client.on("message", (topic, message, packet) => {
             //reply-to
             const responseTopic = packet.properties?.responseTopic;
-            console.log("Response topic: ", responseTopic);
             const jsonMsg = JSON.parse(message.toString());
-
+            console.log(jsonMsg)
             
             
             if ("BEGIN_TRAN" == jsonMsg.cardTransactionType) {
@@ -75,7 +75,7 @@
 
                 var options= {
                     qos: 1,
-                    properties: {responseTopic: "terminal/"+deviceId}
+                    properties: {responseTopic: "cardpointe/terminal/"+deviceId+'/transaction/#'}
                 };
                 
                 let msg = JSON.stringify(
